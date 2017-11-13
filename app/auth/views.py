@@ -31,3 +31,41 @@ def register():
     return render_template('auth/register.html', form=form, title='Register')
 
 
+@auth.route('/login', methods=['GET','POST'])
+def login():
+    """
+    Handle requests to the /login route
+    Log a user in through the login form
+    """
+    form = LoginForm()
+    if form.validate_on_submit():
+        # Check whether user exists in the database and whether
+        # the password entered matches the password in the database
+
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is not None and user.verify_password(form.password.data):
+            # Log user in
+            login_user(user)
+
+            # Redirect to the dashboard page after login
+            return redirect(url_for('home.dashboard'))
+
+        # when login details are incorrect
+        else:
+            flash('Invalid email or password.')
+
+    # Load login template
+    return render_template('auth/login.html', form=form, title='Login')
+
+@auth.route('/logout')
+@login_required
+def logout():
+    """
+    Handle requests to the /logout route
+    Log a user out through the logout link
+    """
+    logout_user()
+    flash('You have been successfully logged out.')
+
+    # Redirect to the login page
+    return redirect(url_for('auth.login'))
