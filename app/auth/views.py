@@ -31,7 +31,7 @@ def register():
     return render_template('auth/register.html', form=form, title='Register')
 
 
-@auth.route('/login', methods=['GET','POST'])
+@auth.route('/login', methods=['GET', 'POST'])
 def login():
     """
     Handle requests to the /login route
@@ -47,8 +47,11 @@ def login():
             # Log user in
             login_user(user)
 
-            # Redirect to the dashboard page after login
-            return redirect(url_for('home.dashboard'))
+            # Redirect to the appropriate dashboard page after login
+            if user.is_admin:
+                return redirect(url_for('home.admin_dashboard'))
+            else:
+                return redirect(url_for('home.dashboard'))
 
         # when login details are incorrect
         else:
@@ -56,6 +59,7 @@ def login():
 
     # Load login template
     return render_template('auth/login.html', form=form, title='Login')
+
 
 @auth.route('/logout')
 @login_required
